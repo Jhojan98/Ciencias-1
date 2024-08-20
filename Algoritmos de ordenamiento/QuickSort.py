@@ -2,46 +2,45 @@ import pickle
 with open('100.pkl', 'rb') as file:
     data = pickle.load(file)
 
+
 ciclos = 0
-pasos = 0
+pasos= 0
 
-def quicksort(array, indice_inicial, indice_pivote):
-    global ciclos, pasos
-    valor_pivote = array[indice_pivote]
-    puntero_izquierdo = indice_inicial - 1
-    intercambiado = False
+def quicksort(array, start_index, end_index):
+    global ciclos, total_swaps
+    pivot_value = array[end_index]
+    left_pointer = start_index - 1
+    swapped = False
 
-    for indice_actual in range(indice_inicial, indice_pivote):
+    for current_index in range(start_index, end_index):
+        global ciclos, pasos
         ciclos += 1
-        if array[indice_actual] > valor_pivote:
-            intercambiado = True
-            while indice_actual <= puntero_izquierdo:
+        if array[current_index] > pivot_value:
+            swapped = True
+            while current_index <= left_pointer:
                 ciclos += 1
-                if array[puntero_izquierdo] < valor_pivote:
+                if array[left_pointer] < pivot_value:
                     pasos += 1
-                    array[indice_actual], array[puntero_izquierdo] = array[puntero_izquierdo], array[indice_actual]
-                    puntero_izquierdo -= 1
+                    array[current_index], array[left_pointer] = array[left_pointer], array[current_index]
+                    left_pointer -= 1
                     break
-                puntero_izquierdo -= 1
+                left_pointer -= 1
 
-        if indice_actual > puntero_izquierdo or not intercambiado and indice_actual == indice_pivote - 1:
-            pasos += 1
-            if intercambiado:
-                pasos += 1
-                array[indice_actual], array[indice_pivote] = valor_pivote, array[indice_actual]
+        if current_index > left_pointer or not swapped and current_index == end_index - 1:
+            if swapped:
+                pasos+= 1
+                array[current_index], array[end_index] = pivot_value, array[current_index]
             else:
-                indice_actual = indice_pivote
+                current_index = end_index
 
-            if (indice_actual - 1) > indice_inicial:
-                pasos += 1
-                quicksort(array, indice_inicial, indice_actual - 1)
-            if (indice_actual + 1) < indice_pivote:
-                pasos += 1
-                quicksort(array, indice_actual + 1, indice_pivote)
+            if (current_index - 1) > start_index:
+                quicksort(array, start_index, current_index - 1)
+            if (current_index + 1) < end_index:
+                quicksort(array, current_index + 1, end_index)
 
             return array
 
-data_ordenada = quicksort(data, 0, len(data) - 1)
-print(data_ordenada)
-print('Ciclos:', ciclos)
-print('Pasos:', pasos)
+sorted_data = quicksort(data, 0, len(data) - 1)
+print(sorted_data)
+print('Total ciclos:', ciclos)
+print('Total pasos:', pasos)
