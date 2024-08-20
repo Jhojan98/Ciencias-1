@@ -53,7 +53,7 @@ cover/
 #archivos de prueba
 **/prueba1.py
 .prueba1.py
-.prueba2.py
+**/prueba2.py
 # Translations
 *.mo
 *.pot
