@@ -1,46 +1,51 @@
 import pickle
 with open('100.pkl', 'rb') as file:
     data = pickle.load(file)
-
+print(data)
 
 ciclos = 0
 pasos= 0
 
-def quicksort(array, start_index, end_index):
-    global ciclos, total_swaps
-    pivot_value = array[end_index]
-    left_pointer = start_index - 1
-    swapped = False
+def quickSort(list, start_index, end_index):
+    global ciclos, pasos
+    pivot = list[end_index]
+    j = end_index-1
+    swaped = False
 
-    for current_index in range(start_index, end_index):
-        global ciclos, pasos
+    for i in range(start_index, end_index):
         ciclos += 1
-        if array[current_index] > pivot_value:
-            swapped = True
-            while current_index <= left_pointer:
+        if data[i] > pivot:
+            pasos += 1
+            swaped = True
+            while i <= j:
                 ciclos += 1
-                if array[left_pointer] < pivot_value:
+                if data[j] < pivot:
                     pasos += 1
-                    array[current_index], array[left_pointer] = array[left_pointer], array[current_index]
-                    left_pointer -= 1
+                    data[i], data[j] = data[j], data[i]
+                    j -= 1
                     break
-                left_pointer -= 1
+                j -= 1
 
-        if current_index > left_pointer or not swapped and current_index == end_index - 1:
-            if swapped:
-                pasos+= 1
-                array[current_index], array[end_index] = pivot_value, array[current_index]
+        if i > j or not swaped and i == end_index-1:
+            pasos += 1
+            if swaped: 
+                pasos += 1
+                data[i], data[end_index] = pivot, data[i]
             else:
-                current_index = end_index
+                pasos += 1
+                i = end_index
 
-            if (current_index - 1) > start_index:
-                quicksort(array, start_index, current_index - 1)
-            if (current_index + 1) < end_index:
-                quicksort(array, current_index + 1, end_index)
+            if (i-1) > start_index:
+                pasos += 1
+                quickSort(data, start_index, i-1)
+            if (i+1) < end_index:
+                pasos += 1
+                quickSort(data, i+1, end_index)
 
-            return array
+            return data
 
-sorted_data = quicksort(data, 0, len(data) - 1)
+sorted_data = quickSort(data, 0, len(data) - 1)
 print(sorted_data)
 print('Total ciclos:', ciclos)
 print('Total pasos:', pasos)
+
