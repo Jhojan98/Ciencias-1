@@ -8,7 +8,14 @@ Original file is located at
 """
 
 step_count = 0
-
+import pickle
+with open('100.pkl', 'rb') as file:
+    arr_100 = pickle.load(file)
+with open('1000.pkl', 'rb') as file:
+    arr_1000 = pickle.load(file)
+with open('10000.pkl', 'rb') as file:
+    arr_10000 = pickle.load(file)
+    
 def merge(ordArrIzq, ordArrDer):
     global step_count
     arrResul = []
@@ -43,16 +50,7 @@ def mergeSort(arr):
     ordArrIzq = mergeSort(arrIzq)
     ordArrDer = mergeSort(arrDer)
     return merge(ordArrIzq, ordArrDer)
-
-def generate_descending_arrays():
-    array_100 = list(range(100, 0, -1))
-    array_1000 = list(range(1000, 0, -1))
-    array_10000 = list(range(10000, 0, -1))
-
-    return array_100, array_1000, array_10000
-
-arr_100, arr_1000, arr_10000 = generate_descending_arrays()
-
+ 
 step_count = 0
 mergeSort(arr_100)
 print(f"Numero de pasos para un arreglo de 100 elementos: {step_count}")
