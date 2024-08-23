@@ -1,11 +1,13 @@
+import pickle
+with open('100.pkl', 'rb') as file:
+    data_100 = pickle.load(file)
+with open('1000.pkl', 'rb') as file:
+    data_1000 = pickle.load(file)
+with open('10000.pkl', 'rb') as file:  
+    data_10000 = pickle.load(file)
+
 ciclos = 0
 pasos = 0
-def generate_descending_arrays(): #Para obtener la notación O(n log n) en el peor caso
-    array_100 = list(range(100, 0, -1))
-    array_1000 = list(range(1000, 0, -1))
-    array_10000 = list(range(10000, 0, -1))
-    
-    return array_100, array_1000, array_10000
 
 def amontonarEnRama(arreglo, n, i):
     global pasos
@@ -41,22 +43,20 @@ def heapSort(arreglo):
         pasos += 1  # Intercambio
         amontonarEnRama(arreglo, i, 0)
 
-arr_100, arr_1000, arr_10000 = generate_descending_arrays()
-
 ciclos = 0
 pasos = 0 
-heapSort(arr_100)
+heapSort(data_100)
 print("Cantidad de pasos: ", pasos)
 print("Cantidad de ciclos: ", ciclos)
 
 ciclos = 0
 pasos = 0
-heapSort(arr_1000)
+heapSort(data_1000)
 print("Cantidad de pasos: ", pasos)
 print("Cantidad de ciclos: ", ciclos)
 
 ciclos = 0
 pasos = 0
-heapSort(arr_10000)
+heapSort(data_10000)
 print("Cantidad de pasos: ", pasos)
 print("Cantidad de ciclos: ", ciclos)
