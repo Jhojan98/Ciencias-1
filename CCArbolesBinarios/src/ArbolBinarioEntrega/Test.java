@@ -28,7 +28,9 @@ public class Test {
         arbolPrueba.dispararAgregarNodo(nodoPrueba6);
         arbolPrueba.dispararAgregarNodo(nodoPrueba7);
         
-        ArrayList<NodoBinario<Integer>> inorder = arbolPrueba.dispararInorden();
+        ArrayList<NodoBinario<Integer>> inorder;
+        
+        inorder = arbolPrueba.dispararInorden();
         for(NodoBinario<Integer> nodo : inorder) {
             System.out.println(nodo.getDato());
         }
@@ -43,5 +45,13 @@ public class Test {
         System.out.println(arbolPrueba.dispararObtenerNodo(6));
         System.out.println("Padre de 4: " + nodoPrueba4.getPadre());
         System.out.println("Padre de 6: " + nodoPrueba5.getPadre());
+        
+        arbolPrueba.dispararEliminarNodo(nodoPrueba1);
+        arbolPrueba.dispararEliminarNodo(nodoPrueba7);
+        
+        inorder = arbolPrueba.dispararInorden();
+        for(NodoBinario<Integer> nodo : inorder) {
+            System.out.println(nodo.getDato());
+        }
     }
 }

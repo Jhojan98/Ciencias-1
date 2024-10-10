@@ -130,32 +130,65 @@ public class ArbolBinario <T extends Comparable> {
     
     public void dispararEliminarNodo(NodoBinario<T> nodoEliminar) {
         if (this.raiz == null) {
-            //Arbol vacio, nada que eliminar
+            // Árbol vacío, nada que eliminar
+            return;
+        }
+        eliminarNodo(nodoEliminar);
+    }
+    
+        private void eliminarNodoSinHijos(NodoBinario<T> nodo) {
+        if (nodo == raiz) {
+            raiz = null;
         } else {
-            eliminarNodo(raiz, nodoEliminar, dispararInorden());
+            NodoBinario<T> padre = nodo.getPadre();
+            if (padre.getHijoIzquierdo() == nodo) {
+                padre.setHijoIzquierdo(null);
+            } else {
+                padre.setHijoDerecho(null);
+            }
         }
     }
     
-    public void eliminarNodo (NodoBinario<T> nodoActual, NodoBinario<T> nodoEliminar, ArrayList<NodoBinario<T>> ordenActual) {
-        if(nodoEliminar.getDato().compareTo(nodoActual.getDato()) < 0 && nodoActual.getHijoIzquierdo() != null) {
-            eliminarNodo(nodoActual.getHijoIzquierdo(), nodoEliminar, ordenActual);
-        } else if (nodoEliminar.getDato().compareTo(nodoActual.getDato()) > 0 && nodoActual.getHijoDerecho() != null) {
-            eliminarNodo(nodoActual.getHijoDerecho(), nodoEliminar, ordenActual);
-        } else if (nodoEliminar.equals(nodoActual)) {
-             if(nodoActual.getHijoIzquierdo() == null && nodoActual.getHijoDerecho() == null) {
-                 //Eliminar nodoActual
-             } else if (nodoEliminar.getHijoIzquierdo() != null) {
-                 NodoBinario<T> intermedio = new NodoBinario<T>(nodoEliminar.getHijoIzquierdo());
-                 //Intercambiar nodoActual por el hijoIzquierdo y eliminar en su posición original al hijoIzquierdo
-             } else if (nodoEliminar.getHijoDerecho() != null) {
-                 NodoBinario<T> intermedio = new NodoBinario<T>(nodoEliminar.getHijoDerecho());
-                 //Intercambiar nodoActual por el hijoDerecho y eliminar en su posición original al hijoDerecho
-             } else {
-                 NodoBinario<T> intermedio = new NodoBinario<T>(ordenActual.get(ordenActual.indexOf(nodoActual) + 1)); 
-                 //Intercambiar nodoActual por su sucesor en inorden y eliminar en su posición original al sucesor en inorden
-             }        
+    private void eliminarNodoConUnHijo(NodoBinario<T> nodo, NodoBinario<T> hijo) {
+        if (nodo == raiz) {
+            raiz = hijo;
+            hijo.setPadre(null);
         } else {
-            //Nodo no encontrado
+            NodoBinario<T> padre = nodo.getPadre();
+            if (padre.getHijoIzquierdo() == nodo) {
+                padre.setHijoIzquierdo(hijo);
+            } else {
+                padre.setHijoDerecho(hijo);
+            }
+            hijo.setPadre(padre);
+        }
+    }
+    
+    private NodoBinario<T> encontrarMinimo(NodoBinario<T> nodo) {
+        while (nodo.getHijoIzquierdo() != null) {
+            nodo = nodo.getHijoIzquierdo();
+        }
+        return nodo;
+    }
+    
+    private void eliminarNodo(NodoBinario<T> nodoEliminar) {
+        if (nodoEliminar == null) {
+            return;
+        }
+        // Caso 1: Nodo sin hijos (hoja)
+        if (nodoEliminar.getHijoIzquierdo() == null && nodoEliminar.getHijoDerecho() == null) {
+            eliminarNodoSinHijos(nodoEliminar);   
+        // Caso 2: Nodo con un solo hijo (izquierdo)
+        } else if (nodoEliminar.getHijoIzquierdo() != null && nodoEliminar.getHijoDerecho() == null) {
+            eliminarNodoConUnHijo(nodoEliminar, nodoEliminar.getHijoIzquierdo());       
+        // Caso 2: Nodo con un solo hijo (derecho)
+        } else if (nodoEliminar.getHijoIzquierdo() == null && nodoEliminar.getHijoDerecho() != null) {
+            eliminarNodoConUnHijo(nodoEliminar, nodoEliminar.getHijoDerecho());        
+        // Caso 3: Nodo con dos hijos
+        } else {
+            NodoBinario<T> sucesor = encontrarMinimo(nodoEliminar.getHijoDerecho());
+            nodoEliminar.setDato(sucesor.getDato());
+            eliminarNodo(sucesor);
         }
     }
     
