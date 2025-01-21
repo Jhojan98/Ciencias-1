@@ -5,22 +5,21 @@
 package ArbolBinarioEntrega;
 
 /**
- *
  * @author Estudiantes
  */
-public class NodoBinario <T extends Comparable> extends ArbolBinario { 
-//Lo comparable hace lo ordenable 
+public class NodoBinario<T extends Comparable> extends ArbolBinario {
+    //Lo comparable hace lo ordenable
 //Deberíamos guardar una referencia hacia el padre en los nodos 
-    private T dato; 
+    private T dato;
     private NodoBinario<T> padre = null;
-    private NodoBinario<T> hijoIzquierdo = null; 
-    private NodoBinario<T> hijoDerecho = null; 
+    private NodoBinario<T> hijoIzquierdo = null;
+    private NodoBinario<T> hijoDerecho = null;
     private int nivel;
 
     public NodoBinario(T dato) {
         this.dato = dato;
     }
-    
+
     public NodoBinario(NodoBinario<T> nodoBinario) {
         this.dato = nodoBinario.getDato();
     }
@@ -40,7 +39,7 @@ public class NodoBinario <T extends Comparable> extends ArbolBinario {
     public void setPadre(NodoBinario<T> padre) {
         this.padre = padre;
     }
-    
+
 
     public NodoBinario<T> getHijoIzquierdo() {
         return hijoIzquierdo;
@@ -66,12 +65,19 @@ public class NodoBinario <T extends Comparable> extends ArbolBinario {
         this.nivel = nivel;
     }
 
-@Override  
-public int altura() { 
-    int alturaSubIzquierdo = getHijoIzquierdo() != null ? getHijoIzquierdo().altura() : 0; 
-    int alturaSubDerecho = getHijoDerecho() != null ? getHijoDerecho().altura() : 0; 
-    return Math.max(alturaSubIzquierdo, alturaSubDerecho) + 1; 
+    public int factorDeEquilibrio() {
+        int alturaIzquierda = (hijoIzquierdo != null) ? hijoIzquierdo.altura() : 0;
+        int alturaDerecha = (hijoDerecho != null) ? hijoDerecho.altura() : 0;
+        return alturaIzquierda - alturaDerecha;
+    }
 
-} 
+
+    @Override
+    public int altura() {
+        int alturaSubIzquierdo = getHijoIzquierdo() != null ? getHijoIzquierdo().altura() : 0;
+        int alturaSubDerecho = getHijoDerecho() != null ? getHijoDerecho().altura() : 0;
+        return Math.max(alturaSubIzquierdo, alturaSubDerecho) + 1;
+
+    }
 
 } 

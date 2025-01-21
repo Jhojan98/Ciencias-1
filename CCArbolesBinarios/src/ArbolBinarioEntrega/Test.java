@@ -1,57 +1,111 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
-package ArbolBinarioEntrega;
-import java.util.ArrayList;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import org.graphstream.graph.Graph;
+import org.graphstream.graph.implementations.SingleGraph;
 
-/**
- *
- * @author Estudiantes
- */
 public class Test {
+
+    private static ArbolBinario<Integer> arbol = new ArbolBinario<>();
+    private static Graph graph;
+
     public static void main(String[] args) {
-        ArbolBinario<Integer> arbolPrueba = new ArbolBinario<>();
-        NodoBinario<Integer> nodoPrueba1 = new NodoBinario<>(10);
-        NodoBinario<Integer> nodoPrueba2 = new NodoBinario<>(5);
-        NodoBinario<Integer> nodoPrueba3 = new NodoBinario<>(12);
-        NodoBinario<Integer> nodoPrueba4 = new NodoBinario<>(4);
-        NodoBinario<Integer> nodoPrueba5 = new NodoBinario<>(6);
-        NodoBinario<Integer> nodoPrueba6 = new NodoBinario<>(11);
-        NodoBinario<Integer> nodoPrueba7 = new NodoBinario<>(13);
-        
-        arbolPrueba.dispararAgregarNodo(nodoPrueba1);
-        arbolPrueba.dispararAgregarNodo(nodoPrueba2);
-        arbolPrueba.dispararAgregarNodo(nodoPrueba3);
-        arbolPrueba.dispararAgregarNodo(nodoPrueba4);
-        arbolPrueba.dispararAgregarNodo(nodoPrueba5);
-        arbolPrueba.dispararAgregarNodo(nodoPrueba6);
-        arbolPrueba.dispararAgregarNodo(nodoPrueba7);
-        
-        ArrayList<NodoBinario<Integer>> inorder;
-        
-        inorder = arbolPrueba.dispararInorden();
-        for(NodoBinario<Integer> nodo : inorder) {
-            System.out.println(nodo.getDato());
+        // Configuración de la visualización en Swing
+        System.setProperty("org.graphstream.ui", "swing");
+
+        // Crear la interfaz gráfica
+        JFrame frame = new JFrame("Árbol Binario con GraphStream");
+        frame.setSize(800, 600);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setLayout(new BorderLayout());
+
+        // Crear el panel de botones
+        JPanel panelBotones = new JPanel();
+        JButton botonInsertar = new JButton("Insertar Nodo");
+        JButton botonEliminar = new JButton("Eliminar Nodo");
+        JButton botonRecorrer = new JButton("Recorrer In-Orden");
+
+        // Agregar botones al panel
+        panelBotones.add(botonInsertar);
+        panelBotones.add(botonEliminar);
+        panelBotones.add(botonRecorrer);
+
+        // Añadir el panel de botones a la ventana principal
+        frame.add(panelBotones, BorderLayout.NORTH);
+
+        // Crear el grafo de GraphStream
+        graph = new SingleGraph("Árbol Binario");
+
+        // Mostrar el grafo en un panel
+        JPanel graphPanel = new JPanel(new BorderLayout());
+        frame.add(graphPanel, BorderLayout.CENTER);
+        graphPanel.add(graph.display().getDefaultView(), BorderLayout.CENTER);
+
+        // Acción del botón "Insertar Nodo"
+        botonInsertar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String input = JOptionPane.showInputDialog("Ingrese el valor del nodo:");
+                try {
+                    int valor = Integer.parseInt(input);
+                    arbol.insertar(valor);
+                    actualizarGrafo();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Valor no válido", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Acción del botón "Eliminar Nodo"
+        botonEliminar.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String input = JOptionPane.showInputDialog("Ingrese el valor del nodo a eliminar:");
+                try {
+                    int valor = Integer.parseInt(input);
+                    arbol.eliminar(valor);
+                    actualizarGrafo();
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(frame, "Valor no válido", "Error", JOptionPane.ERROR_MESSAGE);
+                }
+            }
+        });
+
+        // Acción del botón "Recorrer In-Orden"
+        botonRecorrer.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JOptionPane.showMessageDialog(frame, "Recorrido In-Orden: " + arbol.recorridoInOrden());
+            }
+        });
+
+        // Mostrar la ventana
+        frame.setVisible(true);
+    }
+
+    // Método para actualizar la visualización del grafo
+    private static void actualizarGrafo() {
+        graph.clear(); // Limpiar el grafo actual
+        if (!arbol.esVacio()) {
+            agregarNodoAlGrafo(graph, arbol.getRaiz(), null);
         }
-        
-        System.out.println("Altura de arbolPrueba: " + arbolPrueba.altura());
-        System.out.println("Cantidad de nodos: " + arbolPrueba.dispararContarNodos());
-        System.out.println("arbolPrueba lleno? " + arbolPrueba.dispararArbolEsLleno());
-        System.out.println("arbolPrueba completo? " + arbolPrueba.dispararArbolEsCompleto());
-        System.out.println("arbolPrueba perfecto? " + arbolPrueba.dispararArbolEsPerfecto());
-        System.out.println("Nivel de 13: " + arbolPrueba.dispararObtenerNivel(nodoPrueba7));
-        System.out.print(nodoPrueba5 + "    VS    ");
-        System.out.println(arbolPrueba.dispararObtenerNodo(6));
-        System.out.println("Padre de 4: " + nodoPrueba4.getPadre());
-        System.out.println("Padre de 6: " + nodoPrueba5.getPadre());
-        
-        arbolPrueba.dispararEliminarNodo(nodoPrueba1);
-        arbolPrueba.dispararEliminarNodo(nodoPrueba7);
-        
-        inorder = arbolPrueba.dispararInorden();
-        for(NodoBinario<Integer> nodo : inorder) {
-            System.out.println(nodo.getDato());
+    }
+
+    private static void agregarNodoAlGrafo(Graph graph, NodoBinario<T> nodo, String nodoPadre) {
+        if (nodo == null) return;
+
+        // Crear el nodo en el grafo con el dato como etiqueta
+        String nodoId = String.valueOf(nodo.getDato());
+        graph.addNode(nodoId).setAttribute("ui.label", nodoId);
+
+        // Crear la arista entre el nodo actual y su nodo padre
+        if (nodoPadre != null) {
+            graph.addEdge(nodoPadre + "-" + nodoId, nodoPadre, nodoId);
         }
+
+        // Llamadas recursivas para los hijos izquierdo y derecho
+        agregarNodoAlGrafo(graph, nodo.getHijoIzquierdo(), nodoId);
+        agregarNodoAlGrafo(graph, nodo.getHijoDerecho(), nodoId);
     }
 }
