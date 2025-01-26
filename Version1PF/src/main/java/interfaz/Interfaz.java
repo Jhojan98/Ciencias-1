@@ -14,11 +14,14 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Interfaz extends JFrame {
     private ArbolAVL arbol;
     private JTextField inputField;
     private JTextArea outputArea;
+    private JTextArea historyArea;
     private JPanel graphPanel;
 
     public Interfaz() {
@@ -45,11 +48,18 @@ public class Interfaz extends JFrame {
         inputField.setFont(new Font("Arial", Font.PLAIN, 14));
         inputField.setPreferredSize(new Dimension(200, 30));
 
+        JTabbedPane tabbedPane = new JTabbedPane();
+
+        // Nueva pestaña de historial
+        historyArea = new JTextArea();
+        historyArea.setEditable(false);
+        JScrollPane historyScroll = new JScrollPane(historyArea);
+        tabbedPane.addTab("Historial", historyScroll);
+
         // Panel de botones con íconos
         JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
 
         // Create and add buttons here
-
         JButton insertButton = crearBoton("Insertar", new Color(46, 204, 113));
         insertButton.addActionListener(new ActionListener() {
             @Override
@@ -57,6 +67,11 @@ public class Interfaz extends JFrame {
                 try {
                     int dato = Integer.parseInt(inputField.getText());
                     arbol.insertar(dato);
+
+                    actualizarHistorial("Inserción", dato);
+                    arbol.historial.forEach(r -> historyArea.append("  ➔ " + r + "\n"));
+                    arbol.historial.clear();
+
                     mostrarArbol();
                     graficarArbol();
                 } catch (NumberFormatException ex) {
@@ -73,6 +88,9 @@ public class Interfaz extends JFrame {
                 try {
                     int dato = Integer.parseInt(inputField.getText());
                     arbol.eliminar(dato);
+                    actualizarHistorial("Eliminación", dato);
+                    arbol.historial.forEach(r -> historyArea.append("  ➔ " + r + "\n"));
+                    arbol.historial.clear();
                     mostrarArbol();
                     graficarArbol();
                 } catch (NumberFormatException ex) {
@@ -111,9 +129,6 @@ public class Interfaz extends JFrame {
         controlPanel.add(inputField, BorderLayout.NORTH);
         controlPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        // Área de información con pestañas
-        JTabbedPane tabbedPane = new JTabbedPane();
-
         // Panel de texto
         outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
         tabbedPane.addTab("Información", new JScrollPane(outputArea));
@@ -124,6 +139,11 @@ public class Interfaz extends JFrame {
 
         add(controlPanel, BorderLayout.NORTH);
         add(tabbedPane, BorderLayout.CENTER);
+    }
+
+    private void actualizarHistorial(String operacion, int dato) {
+        String timestamp = new SimpleDateFormat("HH:mm:ss").format(new Date());
+        historyArea.append("[" + timestamp + "] " + operacion + ": " + dato + "\n");
     }
 
     private void mostrarArbol() {

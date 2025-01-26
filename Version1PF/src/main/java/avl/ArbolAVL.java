@@ -1,5 +1,8 @@
 package avl;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import javax.swing.JTextArea;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
@@ -7,6 +10,7 @@ import org.jgrapht.graph.DefaultEdge;
 public class ArbolAVL {
 
     private Nodo raiz;
+    public List<String> historial = new ArrayList<>();
 
     // Obtener altura de un nodo
     private int altura(Nodo n) {
@@ -20,6 +24,10 @@ public class ArbolAVL {
 
     // Rotación simple a la derecha
     private Nodo rotarDerecha(Nodo y) {
+        if (y == null || y.izquierda == null) { // ← Validar null
+            return y; // No se puede rotar
+        }
+        historial.add("Rotación derecha en nodo: " + y.dato);
         Nodo x = y.izquierda;
         Nodo T2 = x.derecha;
 
@@ -34,6 +42,10 @@ public class ArbolAVL {
 
     // Rotación simple a la izquierda
     private Nodo rotarIzquierda(Nodo x) {
+        if (x == null || x.derecha == null) { // ← Validar null
+            return x; // No se puede rotar
+        }
+        historial.add("Rotación izquierda en nodo: " + x.dato);
         Nodo y = x.derecha;
         Nodo T2 = y.izquierda;
 
@@ -67,24 +79,22 @@ public class ArbolAVL {
         int balance = balance(nodo);
 
         // Rotaciones para balancear el árbol
-        if (balance > 1 && dato < nodo.izquierda.dato) {
-            return rotarDerecha(nodo);
+        if (balance > 1) {
+            if (nodo.izquierda != null && dato < nodo.izquierda.dato) { // Left-Left
+                return rotarDerecha(nodo);
+            } else { // Left-Right
+                nodo.izquierda = rotarIzquierda(nodo.izquierda);
+                return rotarDerecha(nodo);
+            }
         }
-
-        if (balance < -1 && dato > nodo.derecha.dato) {
-            return rotarIzquierda(nodo);
+        if (balance < -1) {
+            if (nodo.derecha != null && dato > nodo.derecha.dato) { // Right-Right
+                return rotarIzquierda(nodo);
+            } else { // Right-Left
+                nodo.derecha = rotarDerecha(nodo.derecha);
+                return rotarIzquierda(nodo);
+            }
         }
-
-        if (balance > 1 && dato > nodo.izquierda.dato) {
-            nodo.izquierda = rotarIzquierda(nodo.izquierda);
-            return rotarDerecha(nodo);
-        }
-
-        if (balance < -1 && dato < nodo.derecha.dato) {
-            nodo.derecha = rotarDerecha(nodo.derecha);
-            return rotarIzquierda(nodo);
-        }
-
         return nodo;
     }
 
@@ -126,22 +136,21 @@ public class ArbolAVL {
 
         int balance = balance(nodo);
 
-        if (balance > 1 && balance(nodo.izquierda) >= 0) {
-            return rotarDerecha(nodo);
+        if (balance > 1) {
+            if (nodo.izquierda != null && balance(nodo.izquierda) >= 0) { // Left-Left
+                return rotarDerecha(nodo);
+            } else { // Left-Right
+                nodo.izquierda = rotarIzquierda(nodo.izquierda);
+                return rotarDerecha(nodo);
+            }
         }
-
-        if (balance > 1 && balance(nodo.izquierda) < 0) {
-            nodo.izquierda = rotarIzquierda(nodo.izquierda);
-            return rotarDerecha(nodo);
-        }
-
-        if (balance < -1 && balance(nodo.derecha) <= 0) {
-            return rotarIzquierda(nodo);
-        }
-
-        if (balance < -1 && balance(nodo.derecha) > 0) {
-            nodo.derecha = rotarDerecha(nodo.derecha);
-            return rotarIzquierda(nodo);
+        if (nodo.derecha != null && balance < -1) {
+            if (balance(nodo.derecha) <= 0) { // Right-Right
+                return rotarIzquierda(nodo);
+            } else { // Right-Left
+                nodo.derecha = rotarDerecha(nodo.derecha);
+                return rotarIzquierda(nodo);
+            }
         }
 
         return nodo;
