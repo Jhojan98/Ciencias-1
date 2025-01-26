@@ -244,30 +244,56 @@ public class ArbolAVL {
      * }
      * }
      */
+    /**
+     * Crea un grafo a partir del árbol AVL actual para su visualización.
+     * Este método construye un grafo dirigido donde cada nodo del árbol se
+     * convierte en un vértice
+     * y las relaciones padre-hijo se convierten en aristas dirigidas.
+     *
+     * @param graph El grafo donde se construirá la representación del árbol
+     */
     public void crearGrafo(Graph<String, DefaultEdge> graph) {
-        agregarVertices(raiz, graph);
-        agregarAristas(raiz, graph);
+        agregarVertices(raiz, graph); // Primero agregamos todos los vértices
+        agregarAristas(raiz, graph); // Luego conectamos los vértices con aristas
     }
 
+    /**
+     * Agrega recursivamente los vértices al grafo para cada nodo del árbol.
+     * Cada vértice tiene un identificador único compuesto por el valor del nodo y
+     * su hashCode
+     * para manejar valores duplicados en el árbol.
+     *
+     * @param nodo  El nodo actual del árbol
+     * @param graph El grafo donde se agregarán los vértices
+     */
     private void agregarVertices(Nodo nodo, Graph<String, DefaultEdge> graph) {
         if (nodo != null) {
-            String idUnico = nodo.dato + "_" + nodo.hashCode(); // ID único
+            String idUnico = nodo.dato + "_" + nodo.hashCode(); // ID único para manejar duplicados
             graph.addVertex(idUnico);
             agregarVertices(nodo.izquierda, graph);
             agregarVertices(nodo.derecha, graph);
         }
     }
 
+    /**
+     * Agrega recursivamente las aristas al grafo para representar las relaciones
+     * padre-hijo.
+     * Crea aristas dirigidas desde cada nodo padre hacia sus hijos izquierdo y
+     * derecho.
+     *
+     * @param nodo  El nodo actual del árbol
+     * @param graph El grafo donde se agregarán las aristas
+     */
     private void agregarAristas(Nodo nodo, Graph<String, DefaultEdge> graph) {
         if (nodo != null) {
             String idPadre = nodo.dato + "_" + nodo.hashCode();
             if (nodo.izquierda != null) {
                 String idIzq = nodo.izquierda.dato + "_" + nodo.izquierda.hashCode();
-                graph.addEdge(idPadre, idIzq);
+                graph.addEdge(idPadre, idIzq); // Conecta el padre con el hijo izquierdo
             }
             if (nodo.derecha != null) {
                 String idDer = nodo.derecha.dato + "_" + nodo.derecha.hashCode();
-                graph.addEdge(idPadre, idDer);
+                graph.addEdge(idPadre, idDer); // Conecta el padre con el hijo derecho
             }
             agregarAristas(nodo.izquierda, graph);
             agregarAristas(nodo.derecha, graph);
