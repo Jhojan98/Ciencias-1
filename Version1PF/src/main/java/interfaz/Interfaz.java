@@ -1,8 +1,8 @@
 package interfaz;
 
 import avl.ArbolAVL;
+//import avl.Nodo; // Import the Nodo class
 import org.jgrapht.Graph;
-import org.jgrapht.ext.JGraphXAdapter;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultDirectedGraph;
 import com.mxgraph.swing.mxGraphComponent;
@@ -22,7 +22,7 @@ public class Interfaz extends JFrame {
     public Interfaz() {
         arbol = new ArbolAVL();
         setTitle("Interfaz de Árbol AVL");
-        setSize(800, 800);
+        setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new BorderLayout());
 
@@ -116,44 +116,41 @@ public class Interfaz extends JFrame {
 
     private void graficarArbol() {
         graphPanel.removeAll();
-        
+
         // Crear el grafo con JGraphT
-        Graph<Nodo, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        Graph<Integer, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
         arbol.crearGrafo(graph);
 
         // Convertir a mxGraph
         mxGraph mxGraph = new mxGraph();
         Object parent = mxGraph.getDefaultParent();
 
+        // Mapa para guardar los vértices creados (Integer -> mxCell)
+        java.util.Map<Integer, Object> vertexMap = new java.util.HashMap<>();
+
         mxGraph.getModel().beginUpdate();
         try {
-            // Convertir los nodos y aristas de JGraphT a mxGraph
-            for (Nodo vertex : graph.vertexSet()) {
-                mxGraph.insertVertex(parent, null, vertex.dato, 100, 100, 80, 30);
+            // Añadir vértices
+            for (Integer vertex : graph.vertexSet()) {
+                Object mxVertex = mxGraph.insertVertex(parent, null, vertex, 0, 0, 80, 30);
+                vertexMap.put(vertex, mxVertex); // Guardar referencia
             }
-            
+
+            // Añadir aristas usando los vértices de mxGraph
             for (DefaultEdge edge : graph.edgeSet()) {
-                Nodo source = graph.getEdgeSource(edge);
-                Nodo target = graph.getEdgeTarget(edge);
-                mxGraph.insertEdge(parent, null, "", source.dato, target.dato);
+                Integer source = graph.getEdgeSource(edge);
+                Integer target = graph.getEdgeTarget(edge);
+                mxGraph.insertEdge(parent, null, "", vertexMap.get(source), vertexMap.get(target));
             }
         } finally {
             mxGraph.getModel().endUpdate();
         }
 
+        // Configurar el layout
         mxGraphComponent graphComponent = new mxGraphComponent(mxGraph);
         graphPanel.setLayout(new BorderLayout());
         graphPanel.add(graphComponent, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
-    }
-
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(new Runnable() {
-            @Override
-            public void run() {
-                new Interfaz().setVisible(true);
-            }
-        });
     }
 }

@@ -1,6 +1,6 @@
 package avl;
 
-class Nodo {
+public class Nodo {
 
     int dato, altura;
     Nodo izquierda, derecha;
@@ -8,5 +8,9 @@ class Nodo {
     Nodo(int dato) {
         this.dato = dato;
         altura = 1;
+    }
+
+    public int getDato() {
+        return dato;
     }
 }
