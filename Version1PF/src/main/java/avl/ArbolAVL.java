@@ -181,7 +181,6 @@ public class ArbolAVL {
         return encontradoIzquierda || encontradoDerecha;
     }
 
-    // Mostrar el árbol en formato gráfico
     public void mostrarArbol(JTextArea outputArea) {
         if (raiz == null) {
             outputArea.append("Árbol vacío.\n");
@@ -193,31 +192,76 @@ public class ArbolAVL {
     private void mostrar(Nodo nodo, int nivel, JTextArea outputArea) {
         if (nodo != null) {
             mostrar(nodo.derecha, nivel + 1, outputArea);
+
+            // Add indentation
             for (int i = 0; i < nivel; i++) {
                 outputArea.append("    ");
             }
+            // Print the node value
             outputArea.append(nodo.dato + "\n");
+
             mostrar(nodo.izquierda, nivel + 1, outputArea);
         }
     }
 
-    public void crearGrafo(Graph<Integer, DefaultEdge> graph) {
-        crearGrafoRecursivo(raiz, graph);
+    /*
+     * // esto es para mostrar de arriba a abajo, pero no se puede ver el arbol
+     * public void mostrarArbol(JTextArea outputArea) {
+     * if (raiz == null) {
+     * outputArea.append("Árbol vacío.\n");
+     * return;
+     * }
+     * mostrarNiveles(outputArea);
+     * }
+     * 
+     * private void mostrarNiveles(JTextArea outputArea) {
+     * java.util.Queue<Nodo> cola = new java.util.LinkedList<>();
+     * cola.add(raiz);
+     * 
+     * while (!cola.isEmpty()) {
+     * int nivelSize = cola.size();
+     * StringBuilder nivelStr = new StringBuilder();
+     * 
+     * for (int i = 0; i < nivelSize; i++) {
+     * Nodo actual = cola.poll();
+     * nivelStr.append(actual.dato).append(" ");
+     * 
+     * if (actual.izquierda != null)
+     * cola.add(actual.izquierda);
+     * if (actual.derecha != null)
+     * cola.add(actual.derecha);
+     * }
+     * outputArea.append(nivelStr.toString() + "\n");
+     * }
+     * }
+     */
+    public void crearGrafo(Graph<String, DefaultEdge> graph) {
+        agregarVertices(raiz, graph);
+        agregarAristas(raiz, graph);
     }
 
-    private void crearGrafoRecursivo(Nodo nodo, Graph<Integer, DefaultEdge> graph) {
+    private void agregarVertices(Nodo nodo, Graph<String, DefaultEdge> graph) {
         if (nodo != null) {
-            graph.addVertex(nodo.dato);
+            String idUnico = nodo.dato + "_" + nodo.hashCode(); // ID único
+            graph.addVertex(idUnico);
+            agregarVertices(nodo.izquierda, graph);
+            agregarVertices(nodo.derecha, graph);
+        }
+    }
+
+    private void agregarAristas(Nodo nodo, Graph<String, DefaultEdge> graph) {
+        if (nodo != null) {
+            String idPadre = nodo.dato + "_" + nodo.hashCode();
             if (nodo.izquierda != null) {
-                graph.addVertex(nodo.izquierda.dato);
-                graph.addEdge(nodo.dato, nodo.izquierda.dato);
-                crearGrafoRecursivo(nodo.izquierda, graph);
+                String idIzq = nodo.izquierda.dato + "_" + nodo.izquierda.hashCode();
+                graph.addEdge(idPadre, idIzq);
             }
             if (nodo.derecha != null) {
-                graph.addVertex(nodo.derecha.dato);
-                graph.addEdge(nodo.dato, nodo.derecha.dato);
-                crearGrafoRecursivo(nodo.derecha, graph);
+                String idDer = nodo.derecha.dato + "_" + nodo.derecha.hashCode();
+                graph.addEdge(idPadre, idDer);
             }
+            agregarAristas(nodo.izquierda, graph);
+            agregarAristas(nodo.derecha, graph);
         }
     }
 

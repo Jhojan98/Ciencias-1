@@ -5,6 +5,8 @@ import avl.ArbolAVL;
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultDirectedGraph;
+
+import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
@@ -20,22 +22,35 @@ public class Interfaz extends JFrame {
     private JPanel graphPanel;
 
     public Interfaz() {
+        // Inicializar los componentes primero
         arbol = new ArbolAVL();
-        setTitle("Interfaz de Árbol AVL");
-        setSize(1000, 800);
-        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLayout(new BorderLayout());
-
-        JPanel panel = new JPanel();
-        panel.setLayout(new GridLayout(2, 1));
-
         inputField = new JTextField();
-        panel.add(inputField);
+        outputArea = new JTextArea();
+        graphPanel = new JPanel();
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new GridLayout(1, 4));
+        // Configurar la ventana
+        setTitle("Árbol AVL Visualizer");
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setSize(800, 600); // Tamaño inicial de la ventana
+        setLocationRelativeTo(null); // Centrar la ventana
 
-        JButton insertButton = new JButton("Insertar");
+        setLayout(new BorderLayout(10, 10));
+        getContentPane().setBackground(Color.WHITE);
+
+        // Panel de controles mejorado
+        JPanel controlPanel = new JPanel(new BorderLayout(5, 5));
+        controlPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+
+        // Campo de entrada
+        inputField.setFont(new Font("Arial", Font.PLAIN, 14));
+        inputField.setPreferredSize(new Dimension(200, 30));
+
+        // Panel de botones con íconos
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 5));
+
+        // Create and add buttons here
+
+        JButton insertButton = crearBoton("Insertar", new Color(46, 204, 113));
         insertButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -51,7 +66,7 @@ public class Interfaz extends JFrame {
         });
         buttonPanel.add(insertButton);
 
-        JButton deleteButton = new JButton("Eliminar");
+        JButton deleteButton = crearBoton("Eliminar", new Color(231, 76, 60));
         deleteButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -69,7 +84,7 @@ public class Interfaz extends JFrame {
         });
         buttonPanel.add(deleteButton);
 
-        JButton showButton = new JButton("Mostrar");
+        JButton showButton = crearBoton("Mostrar", new Color(52, 152, 219));
         showButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -79,7 +94,7 @@ public class Interfaz extends JFrame {
         });
         buttonPanel.add(showButton);
 
-        JButton searchButton = new JButton("Buscar");
+        JButton searchButton = crearBoton("Buscar", new Color(155, 89, 182));
         searchButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -93,15 +108,22 @@ public class Interfaz extends JFrame {
         });
         buttonPanel.add(searchButton);
 
-        panel.add(buttonPanel);
-        add(panel, BorderLayout.NORTH);
+        controlPanel.add(inputField, BorderLayout.NORTH);
+        controlPanel.add(buttonPanel, BorderLayout.SOUTH);
 
-        outputArea = new JTextArea();
-        outputArea.setEditable(false);
-        add(new JScrollPane(outputArea), BorderLayout.CENTER);
+        // Área de información con pestañas
+        JTabbedPane tabbedPane = new JTabbedPane();
 
-        graphPanel = new JPanel();
-        add(graphPanel, BorderLayout.SOUTH);
+        // Panel de texto
+        outputArea.setFont(new Font("Monospaced", Font.PLAIN, 12));
+        tabbedPane.addTab("Información", new JScrollPane(outputArea));
+
+        // Panel del gráfico
+        graphPanel.setBackground(Color.WHITE);
+        tabbedPane.addTab("Vista Gráfica", graphPanel);
+
+        add(controlPanel, BorderLayout.NORTH);
+        add(tabbedPane, BorderLayout.CENTER);
     }
 
     private void mostrarArbol() {
@@ -117,40 +139,53 @@ public class Interfaz extends JFrame {
     private void graficarArbol() {
         graphPanel.removeAll();
 
-        // Crear el grafo con JGraphT
-        Graph<Integer, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
+        Graph<String, DefaultEdge> graph = new DefaultDirectedGraph<>(DefaultEdge.class);
         arbol.crearGrafo(graph);
 
-        // Convertir a mxGraph
         mxGraph mxGraph = new mxGraph();
         Object parent = mxGraph.getDefaultParent();
-
-        // Mapa para guardar los vértices creados (Integer -> mxCell)
-        java.util.Map<Integer, Object> vertexMap = new java.util.HashMap<>();
+        java.util.Map<String, Object> vertexMap = new java.util.HashMap<>();
 
         mxGraph.getModel().beginUpdate();
         try {
             // Añadir vértices
-            for (Integer vertex : graph.vertexSet()) {
-                Object mxVertex = mxGraph.insertVertex(parent, null, vertex, 0, 0, 80, 30);
-                vertexMap.put(vertex, mxVertex); // Guardar referencia
+            for (String vertexId : graph.vertexSet()) {
+                String dato = vertexId.split("_")[0];
+                Object mxVertex = mxGraph.insertVertex(parent, null, dato, 0, 0, 40, 40);
+                vertexMap.put(vertexId, mxVertex);
             }
 
-            // Añadir aristas usando los vértices de mxGraph
+            // Añadir aristas
             for (DefaultEdge edge : graph.edgeSet()) {
-                Integer source = graph.getEdgeSource(edge);
-                Integer target = graph.getEdgeTarget(edge);
-                mxGraph.insertEdge(parent, null, "", vertexMap.get(source), vertexMap.get(target));
+                String sourceId = graph.getEdgeSource(edge);
+                String targetId = graph.getEdgeTarget(edge);
+                mxGraph.insertEdge(parent, null, "", vertexMap.get(sourceId), vertexMap.get(targetId));
             }
+
+            // Orientación vertical (raíz en la parte superior)
+            mxHierarchicalLayout layout = new mxHierarchicalLayout(mxGraph, SwingConstants.NORTH);
+            layout.setIntraCellSpacing(50); // Espacio horizontal
+            layout.setInterRankCellSpacing(100); // Espacio vertical
+            layout.execute(parent);
+
         } finally {
             mxGraph.getModel().endUpdate();
         }
 
-        // Configurar el layout
         mxGraphComponent graphComponent = new mxGraphComponent(mxGraph);
+        graphComponent.getViewport().setBackground(Color.WHITE);
         graphPanel.setLayout(new BorderLayout());
         graphPanel.add(graphComponent, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
+    }
+
+    private JButton crearBoton(String texto, Color color) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(color);
+        boton.setForeground(Color.WHITE);
+        boton.setFont(new Font("Arial", Font.BOLD, 12));
+        boton.setPreferredSize(new Dimension(100, 30));
+        return boton;
     }
 }

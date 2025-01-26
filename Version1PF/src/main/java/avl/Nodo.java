@@ -13,4 +13,15 @@ public class Nodo {
     public int getDato() {
         return dato;
     }
+
+    public String getInfo() {
+        return String.format("%d\nAlt: %d\nFB: %d",
+                dato,
+                altura,
+                (altura(izquierda) - altura(derecha)));
+    }
+
+    private int altura(Nodo n) {
+        return n == null ? 0 : n.altura;
+    }
 }
