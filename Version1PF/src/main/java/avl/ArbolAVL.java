@@ -27,7 +27,9 @@ public class ArbolAVL {
         if (y == null || y.izquierda == null) { // ← Validar null
             return y; // No se puede rotar
         }
-        historial.add("Rotación derecha en nodo: " + y.dato);
+        historial.add("Rotación derecha en nodo: " + y.dato + "_" + y.hashCode());
+        historial.add("Nodos involucrados: " + y.dato + "," + y.izquierda.dato + ","
+                + (y.izquierda.derecha != null ? y.izquierda.derecha.dato : "null"));
         Nodo x = y.izquierda;
         Nodo T2 = x.derecha;
 
@@ -45,7 +47,9 @@ public class ArbolAVL {
         if (x == null || x.derecha == null) { // ← Validar null
             return x; // No se puede rotar
         }
-        historial.add("Rotación izquierda en nodo: " + x.dato);
+        historial.add("Rotación izquierda en nodo: " + x.dato + "_" + x.hashCode());
+        historial.add("Nodos involucrados: " + x.dato + "," + x.derecha.dato + ","
+                + (x.derecha.izquierda != null ? x.derecha.izquierda.dato : "null"));
         Nodo y = x.derecha;
         Nodo T2 = y.izquierda;
 
@@ -213,37 +217,6 @@ public class ArbolAVL {
         }
     }
 
-    /*
-     * // esto es para mostrar de arriba a abajo, pero no se puede ver el arbol
-     * public void mostrarArbol(JTextArea outputArea) {
-     * if (raiz == null) {
-     * outputArea.append("Árbol vacío.\n");
-     * return;
-     * }
-     * mostrarNiveles(outputArea);
-     * }
-     * 
-     * private void mostrarNiveles(JTextArea outputArea) {
-     * java.util.Queue<Nodo> cola = new java.util.LinkedList<>();
-     * cola.add(raiz);
-     * 
-     * while (!cola.isEmpty()) {
-     * int nivelSize = cola.size();
-     * StringBuilder nivelStr = new StringBuilder();
-     * 
-     * for (int i = 0; i < nivelSize; i++) {
-     * Nodo actual = cola.poll();
-     * nivelStr.append(actual.dato).append(" ");
-     * 
-     * if (actual.izquierda != null)
-     * cola.add(actual.izquierda);
-     * if (actual.derecha != null)
-     * cola.add(actual.derecha);
-     * }
-     * outputArea.append(nivelStr.toString() + "\n");
-     * }
-     * }
-     */
     /**
      * Crea un grafo a partir del árbol AVL actual para su visualización.
      * Este método construye un grafo dirigido donde cada nodo del árbol se

@@ -5,7 +5,7 @@ public class Nodo {
     int dato, altura;
     Nodo izquierda, derecha;
 
-    Nodo(int dato) {
+    public Nodo(int dato) {
         this.dato = dato;
         altura = 1;
     }

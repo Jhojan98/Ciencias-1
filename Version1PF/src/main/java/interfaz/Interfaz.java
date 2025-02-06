@@ -1,12 +1,15 @@
 package interfaz;
 
 import avl.ArbolAVL;
+import avl.Nodo;
+
 //import avl.Nodo; // Import the Nodo class
 import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.DefaultDirectedGraph;
 
 import com.mxgraph.layout.hierarchical.mxHierarchicalLayout;
+import com.mxgraph.model.mxGeometry;
 import com.mxgraph.swing.mxGraphComponent;
 import com.mxgraph.view.mxGraph;
 
@@ -15,6 +18,8 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 
 public class Interfaz extends JFrame {
@@ -23,6 +28,9 @@ public class Interfaz extends JFrame {
     private JTextArea outputArea;
     private JTextArea historyArea;
     private JPanel graphPanel;
+    private String lastOperation;
+    private int lastDato;
+    private java.util.Map<String, Point> previousPositions = new java.util.HashMap<>();
 
     public Interfaz() {
         // Inicializar los componentes primero
@@ -65,6 +73,7 @@ public class Interfaz extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    lastOperation = "insert";
                     int dato = Integer.parseInt(inputField.getText());
                     arbol.insertar(dato);
 
@@ -74,6 +83,7 @@ public class Interfaz extends JFrame {
 
                     mostrarArbol();
                     graficarArbol();
+                    lastDato = dato;
                 } catch (NumberFormatException ex) {
                     outputArea.setText("Entrada no válida. Por favor, ingrese un número entero.\n");
                 }
@@ -86,6 +96,7 @@ public class Interfaz extends JFrame {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
+                    lastOperation = "delete";
                     int dato = Integer.parseInt(inputField.getText());
                     arbol.eliminar(dato);
                     actualizarHistorial("Eliminación", dato);
@@ -171,7 +182,15 @@ public class Interfaz extends JFrame {
             // Añadir vértices
             for (String vertexId : graph.vertexSet()) {
                 String dato = vertexId.split("_")[0];
-                Object mxVertex = mxGraph.insertVertex(parent, null, dato, 0, 0, 40, 40);
+                Object mxVertex = mxGraph.insertVertex(
+                        parent,
+                        null,
+                        dato,
+                        0,
+                        0,
+                        40,
+                        40,
+                        "shape=ellipse;fillColor=#FFFFFF;strokeColor=#000000;");
                 vertexMap.put(vertexId, mxVertex);
             }
 
@@ -182,11 +201,49 @@ public class Interfaz extends JFrame {
                 mxGraph.insertEdge(parent, null, "", vertexMap.get(sourceId), vertexMap.get(targetId));
             }
 
-            // Orientación vertical (raíz en la parte superior)
+            // Animación para rotaciones
+            List<String> rotationNodes = new ArrayList<>();
+            for (String entry : arbol.historial) {
+                if (entry.startsWith("Nodos involucrados:")) {
+                    String[] nodes = entry.split(":")[1].split(",");
+                    for (String node : nodes) {
+                        rotationNodes.add(node.trim());
+                    }
+                }
+            }
+
+            // Aplicar layout primero para obtener posiciones finales
             mxHierarchicalLayout layout = new mxHierarchicalLayout(mxGraph, SwingConstants.NORTH);
             layout.setIntraCellSpacing(50); // Espacio horizontal
             layout.setInterRankCellSpacing(100); // Espacio vertical
             layout.execute(parent);
+
+            // Animación de movimiento
+            for (String vertexId : graph.vertexSet()) {
+                Object cell = vertexMap.get(vertexId);
+                mxGeometry geometry = mxGraph.getModel().getGeometry(cell);
+                Point newPos = new Point((int) geometry.getX(), (int) geometry.getY());
+
+                if (previousPositions.containsKey(vertexId)) {
+                    Point oldPos = previousPositions.get(vertexId);
+                    animateMovement(mxGraph, cell, oldPos, newPos);
+                }
+
+                // Almacenar posición actual para la próxima vez
+                previousPositions.put(vertexId, newPos);
+            }
+
+            // Resaltar nodos de rotación
+
+            for (String vertexId : vertexMap.keySet()) {
+                String dato = vertexId.split("_")[0];
+                if (rotationNodes.contains(dato)) {
+                    Object cell = vertexMap.get(vertexId);
+                    mxGraph.setCellStyle("fillColor=#FFA500;strokeColor=#000000;", new Object[] { cell });
+                }
+            }
+
+            lastOperation = ""; // Resetear la última operación
 
         } finally {
             mxGraph.getModel().endUpdate();
@@ -198,6 +255,29 @@ public class Interfaz extends JFrame {
         graphPanel.add(graphComponent, BorderLayout.CENTER);
         graphPanel.revalidate();
         graphPanel.repaint();
+    }
+
+    private void animateMovement(mxGraph mxGraph, Object cell, Point from, Point to) {
+        Timer timer = new Timer(50, new ActionListener() {
+            private int steps = 10;
+            private int currentStep = 0;
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (currentStep >= steps) {
+                    ((Timer) e.getSource()).stop();
+                    return;
+                }
+
+                double ratio = (double) currentStep / steps;
+                int x = (int) (from.x + (to.x - from.x) * ratio);
+                int y = (int) (from.y + (to.y - from.y) * ratio);
+
+                mxGraph.getModel().setGeometry(cell, new mxGeometry(x, y, 40, 40));
+                currentStep++;
+            }
+        });
+        timer.start();
     }
 
     private JButton crearBoton(String texto, Color color) {
